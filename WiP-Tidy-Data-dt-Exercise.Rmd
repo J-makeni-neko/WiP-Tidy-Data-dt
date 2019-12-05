@@ -111,9 +111,30 @@ wip <- fread(here("data", "WB-WiP.csv"),
              check.names = TRUE)
 ```
 
-# Continue from here...
+#Data Wrangling Aims
 
 
+```{r}
+#wip
+#str(wip)
+#class(wip)
+
+
+wip [, .N, by=.(V65)]
+#   V65   N
+# 1: NA 264
+```
+
+```{r}
+wip[, c("Indicator.Name", "Indicator.Code", "V65"):=NULL]
+
+setnames(wip, c("Country.Name", "Country.Code"), c("Country", "Code"))
+
+
+head(names(wip))
+
+tail(names(wip))
+```
 
 
 
