@@ -132,10 +132,21 @@ setnames(wip, c("Country.Name", "Country.Code"), c("Country", "Code"))
 
 
 head(names(wip))
+#[1] "Country" "Code"    "X1960"   "X1961"   "X1962"   "X1963"
 
 tail(names(wip))
+#[1] "X2014" "X2015" "X2016" "X2017" "X2018" "X2019"
 ```
 
+```{r}
+WP <- melt(wip,
+           id.vars = c("Country", "Code"),
+           measure = patterns("^X"),
+           variable.name = c("YearC"),
+           value.name = c("pctWiP"),
+           na.rm = TRUE)
+WP
+```
 
 
 
