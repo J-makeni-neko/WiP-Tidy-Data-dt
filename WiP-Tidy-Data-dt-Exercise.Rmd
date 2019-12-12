@@ -115,10 +115,13 @@ wip <- fread(here("data", "WB-WiP.csv"),
 
 
 ```{r}
+#Check the files types
+
 #wip
 #str(wip)
 #class(wip)
 
+#Check that values are NA (before removing)
 
 wip [, .N, by=.(V65)]
 #   V65   N
@@ -126,11 +129,13 @@ wip [, .N, by=.(V65)]
 ```
 
 ```{r}
+#Removing columns 
 wip[, c("Indicator.Name", "Indicator.Code", "V65"):=NULL]
 
+#Rename columns 
 setnames(wip, c("Country.Name", "Country.Code"), c("Country", "Code"))
 
-
+# Check changes
 head(names(wip))
 #[1] "Country" "Code"    "X1960"   "X1961"   "X1962"   "X1963"
 
@@ -139,6 +144,8 @@ tail(names(wip))
 ```
 
 ```{r}
+#Reshape the data & remove missing data (NA) with na.rm 
+
 WP <- melt(wip,
            id.vars = c("Country", "Code"),
            measure = patterns("^X"),
@@ -147,8 +154,81 @@ WP <- melt(wip,
            na.rm = TRUE)
 WP
 ```
+ 
+```{r}
+#Creating numeric Year variable and ratio of men to women in parliament
 
+WP[, ':='(Year=as.numeric(gsub("[^[:digit:].]", 
+                               "", YearC )),
+   Ratio = (100-pctWiP/pctWiP))] [
+     , YearC:=NULL]
+setcolorder(WP, c("Country", "Code", "Year", 
+                  "pctWiP", "Ratio"))
+WP
+#Look at the contents of WP
+#Countrys in rows || Code - Year columns
+```
 
+```{r}
+#Questions
+
+#What are the time trends for Portugal?
+
+#Select a country | raw data
+
+WP[Country %in% "Portugal"]
+
+#plot of time trends 
+
+library(ggplot2)
+library(magrittr)
+WP[Country %in% "Portugal"] %>%
+ggplot(aes(Year, pctWiP)) +
+  geom_line() + geom_point() +
+  scale_y_continuous(limits=c(0, 50)) +
+  ylab("% Women in Parliament")
+
+```
+```{r}
+#Plot interpretation 
+#In 1990 Portugal had 7,6% of women in parliament
+# % of women in parliament increased over time, in 2018 the % is 34.8
+#Still falls short of 50%
+```
+
+```{r}
+#How does Portugal compare to other countries?
+
+WP[Country %in% c("Portugal", "Sweden", "Spain", 
+                  "Hungary", "Romania", "Finland", 
+                  "Germany", "European Union")] %>%
+  ggplot(aes(Year, pctWiP, colour=Country)) +
+  geom_line() +
+  geom_point() +
+  scale_x_continuous(breaks=seq(1990, 2020, 5)) +
+  scale_y_continuous(limits=c(0, 50),
+                     breaks=seq(0, 50, by=10)) +
+  ggtitle("Women in Parliament: EU Countries") +
+  ylab("% Women in Parliament")
+
+#Interpreration
+  
+
+```
+```{r}
+#Which countries have the hieghest percentage of women in parliamnet by year?
+
+WP[order(-pctWiP), head(.SD, 10)]
+```
+```{r}
+#How do continents compare?
+
+```
+
+```{r}
+#What are the global trends over time?
+
+```
 
 
 ```{r imageEnd, echo=FALSE, out.width="60%"}
